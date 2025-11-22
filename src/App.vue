@@ -1,47 +1,75 @@
 <template>
-  <div id="app">
-    <nav v-if="isAuthenticated" class="navbar">
-      <div class="nav-container">
-        <div class="nav-brand">
-          <h1>Admin Dashboard</h1>
+  <div id="app" class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Navigation Bar -->
+    <nav v-if="isAuthenticated" class="bg-gradient-to-r from-primary to-secondary shadow-lg sticky top-0 z-50 dark:from-indigo-700 dark:to-purple-700">
+      <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+        <div class="flex items-center justify-between h-14 sm:h-16 gap-2 sm:gap-4">
+          <!-- Logo/Brand -->
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <div class="w-8 sm:w-10 h-8 sm:h-10 bg-white rounded-lg flex items-center justify-center">
+              <svg class="w-5 sm:w-6 h-5 sm:h-6 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM15.657 14.243a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM11 17a1 1 0 102 0v-1a1 1 0 10-2 0v1zM5.757 15.657a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM2 10a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.757 5.757a1 1 0 000-1.414L5.05 3.636a1 1 0 00-1.414 1.414l.707.707z"></path>
+              </svg>
+            </div>
+            <h1 class="text-lg sm:text-2xl font-bold text-white hidden sm:block">Admin</h1>
+          </div>
+
+          <!-- Navigation Links -->
+          <div class="flex items-center gap-1 sm:gap-2">
+            <nav-link
+              to="/dashboard"
+              :is-active="isActive('/dashboard')"
+            >
+              <span class="text-xs sm:text-base">Dashboard</span>
+            </nav-link>
+            <nav-link
+              to="/products"
+              :is-active="isActive('/products')"
+            >
+              <span class="text-xs sm:text-base">Products</span>
+            </nav-link>
+            <nav-link
+              to="/orders"
+              :is-active="isActive('/orders')"
+            >
+              <span class="text-xs sm:text-base">Orders</span>
+            </nav-link>
+          </div>
+
+          <!-- Spacer -->
+          <div class="flex-1"></div>
+
+          
+   
+
+          <!-- Logout Button -->
+          <button
+            @click="handleLogout"
+            class="px-2 sm:px-4 py-1.5 sm:py-2 bg-white/20 hover:bg-white/30 text-white text-xs sm:text-base rounded-lg font-medium transition-all duration-200 flex-shrink-0 whitespace-nowrap"
+          >
+            Logout
+          </button>
         </div>
-        <ul class="nav-menu">
-          <li>
-            <router-link to="/dashboard" :class="{ active: isActive('/dashboard') }">
-              Dashboard
-            </router-link>
-          </li>
-          <li>
-            <router-link to="/products" :class="{ active: isActive('/products') }">
-              Products
-            </router-link>
-          </li>
-          <li>
-            <router-link to="/orders" :class="{ active: isActive('/orders') }">
-              Orders
-            </router-link>
-          </li>
-          <li>
-            <button @click="handleLogout" class="btn-logout">Logout</button>
-          </li>
-        </ul>
       </div>
     </nav>
 
-    <div class="main-content">
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto">
       <router-view></router-view>
-    </div>
+    </main>
   </div>
 </template>
 
 <script setup>
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from './store/auth'
-import { computed } from 'vue'
+import { useThemeStore } from './store/theme'
+import { computed, onMounted } from 'vue'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const themeStore = useThemeStore()
 
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 
@@ -53,120 +81,38 @@ const handleLogout = () => {
   authStore.logout()
   router.push('/login')
 }
+
+onMounted(() => {
+  themeStore.initializeTheme()
+  themeStore.watchSystemPreference()
+})
 </script>
 
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+<script>
+import { h } from 'vue'
+import { RouterLink } from 'vue-router'
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  background-color: #f5f5f5;
-}
-
-#app {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.navbar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 70px;
-}
-
-.nav-brand h1 {
-  font-size: 22px;
-  font-weight: 600;
-  margin: 0;
-}
-
-.nav-menu {
-  display: flex;
-  list-style: none;
-  gap: 30px;
-  align-items: center;
-}
-
-.nav-menu a {
-  color: white;
-  text-decoration: none;
-  font-size: 15px;
-  font-weight: 500;
-  padding: 8px 12px;
-  border-radius: 4px;
-  transition: all 0.3s;
-}
-
-.nav-menu a:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-.nav-menu a.active {
-  background-color: rgba(255, 255, 255, 0.3);
-  border-bottom: 2px solid white;
-}
-
-.btn-logout {
-  background-color: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s;
-}
-
-.btn-logout:hover {
-  background-color: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.5);
-}
-
-.main-content {
-  flex: 1;
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-}
-
-@media (max-width: 768px) {
-  .nav-container {
-    flex-direction: column;
-    height: auto;
-    padding: 15px 20px;
-  }
-
-  .nav-menu {
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-  }
-
-  .nav-menu li {
-    width: 100%;
-  }
-
-  .nav-menu a {
-    display: block;
-    padding: 10px;
+const NavLink = {
+  name: 'NavLink',
+  props: ['to', 'isActive'],
+  render() {
+    return h(
+      RouterLink,
+      {
+        to: this.to,
+        class: [
+          'px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium transition-all duration-200',
+          this.isActive
+            ? 'bg-white/30 text-white'
+            : 'text-white/80 hover:text-white hover:bg-white/10'
+        ]
+      },
+      () => this.$slots.default?.()
+    )
   }
 }
-</style>
+
+export default {
+  components: { NavLink }
+}
+</script>

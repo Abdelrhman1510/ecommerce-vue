@@ -1,40 +1,67 @@
 <template>
-  <div class="auth-container">
-    <div class="auth-card">
-      <h1>Admin Login</h1>
-      <form @submit.prevent="handleLogin">
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input
-            id="email"
-            v-model="form.email"
-            type="email"
-            placeholder="Enter your email"
-            required
-          />
-        </div>
+  <div class="min-h-screen bg-gradient-auth dark:bg-gray-900 flex items-center justify-center px-4">
+    <div class="w-full max-w-md">
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-white text-center mb-8">Admin Login</h1>
 
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input
-            id="password"
-            v-model="form.password"
-            type="password"
-            placeholder="Enter your password"
-            required
-          />
-        </div>
+        <form @submit.prevent="handleLogin" class="space-y-6">
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Email Address
+            </label>
+            <input
+              id="email"
+              v-model="form.email"
+              type="email"
+              placeholder="admin@example.com"
+              class="input-field"
+              required
+            />
+          </div>
 
-        <button type="submit" :disabled="loading" class="btn btn-primary">
-          {{ loading ? 'Logging in...' : 'Login' }}
-        </button>
-      </form>
+          <div>
+            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Password
+            </label>
+            <input
+              id="password"
+              v-model="form.password"
+              type="password"
+              placeholder="••••••••"
+              class="input-field"
+              required
+            />
+          </div>
 
-      <div v-if="error" class="error-message">{{ error }}</div>
+          <Transition name="fade">
+            <div v-if="error" class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <p class="text-sm font-medium text-red-800 dark:text-red-400">{{ error }}</p>
+            </div>
+          </Transition>
 
-      <p class="auth-link">
-        Don't have an account? <router-link to="/register">Register here</router-link>
-      </p>
+          <button
+            type="submit"
+            :disabled="loading"
+            class="btn-primary w-full flex items-center justify-center"
+          >
+            <span v-if="!loading">Login to Dashboard</span>
+            <span v-else class="flex items-center gap-2">
+              <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Logging in...
+            </span>
+          </button>
+        </form>
+
+        <p class="text-center text-gray-600 dark:text-gray-400 text-sm mt-6">
+          Don't have an account?
+          <router-link to="/register" class="font-semibold text-primary hover:text-secondary transition-colors dark:hover:text-secondary">
+            Create one
+          </router-link>
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -63,7 +90,6 @@ const handleLogin = async () => {
   try {
     const response = await axios.post('/auth/login', form.value)
 
-    // Extract token and user from response (handle both formats)
     const token = response.data.token || response.data.data?.token
     const user = response.data.user || response.data.data?.user
 
@@ -98,106 +124,13 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-.auth-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
 }
 
-.auth-card {
-  background: white;
-  padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  width: 100%;
-  max-width: 400px;
-}
-
-.auth-card h1 {
-  text-align: center;
-  margin-bottom: 30px;
-  color: #333;
-  font-size: 24px;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  color: #555;
-  font-weight: 500;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 14px;
-  transition: border-color 0.3s;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.btn {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-primary {
-  background-color: #667eea;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #5568d3;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.error-message {
-  margin-top: 15px;
-  padding: 12px;
-  background-color: #fee;
-  color: #c33;
-  border-radius: 5px;
-  font-size: 14px;
-}
-
-.auth-link {
-  text-align: center;
-  margin-top: 20px;
-  color: #666;
-  font-size: 14px;
-}
-
-.auth-link a {
-  color: #667eea;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.auth-link a:hover {
-  text-decoration: underline;
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
